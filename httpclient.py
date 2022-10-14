@@ -61,7 +61,6 @@ class HTTPClient(object):
     #     except:
     #         return None
 
-
     def connect(self, host, port):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect((host, port))
@@ -95,16 +94,7 @@ class HTTPClient(object):
         return buffer.decode('utf-8')
 
     def GET(self, url, args=None):
-        # todo: what to do with args??
-
-
-        # print("** TEST Print")
-        # print("url:")
-        # print(url)
-        # print("** TEST end --")
-
         # parse URL into components
-        # parsedUrl = self.parseURL(url)
         parsedUrl = urllib.parse.urlparse(url)
 
         # send the request to the server
@@ -112,9 +102,7 @@ class HTTPClient(object):
         port = parsedUrl.port 
         port = 80 if port is None else port
         path = parsedUrl.path
-        path = "/" if path is "" else path
-
-    
+        path = "/" if path == "" else path
 
         self.connect(hostname, port)
 
@@ -123,52 +111,15 @@ class HTTPClient(object):
         self.sendall(request)
 
         data = self.recvall(self.socket)
-
-        #parse the data
-        # status_header, body = data.split("\r\n\r\n")
-        # statusLine = status_header.split('\r')[0]
-        # headers = dict(h.split(":", 1) for h in status_header.split("\r\n")[1:])
-
-        # d = HTTPResponseData(data)
-
-
-        # print("** TEST Print")
-        # print("--- parsedUrl ---")
-        # print(parsedUrl)
-        # print("\n--------\n")
-
-        # print("hostname: {}" .format(hostname))
-        # print("port: {}" .format(port))
-        # print("path: {}" .format(path))
-        # print("\n--------\n")
-
-
-        # print("")
-        # print("status line: {}\n".format(d.getStatusLine()))
-        # print("status code: {}\n".format(d.getStatusCode()))
-        # print("header: {}\n".format(d.getHeaders()))
-        # print("body: {}\n".format(d.getBody()))
-        # print("\n")
-
-        # print("** TEST end --\n\n")
-
         code = self.get_code(data)
         body = self.get_body(data)
         self.close()
-        # print("** TEST Print")
-        # print(code)
-        # print(body)
-        # print("** TEST end --\n\n")
-
-        # code = 500
-        # body = ""
 
         return HTTPResponse(code, body)
 
     def POST(self, url, args=None):
 
         # parse URL into components
-        # parsedUrl = self.parseURL(url)
         parsedUrl = urllib.parse.urlparse(url)
 
         # send the request to the server
@@ -182,11 +133,12 @@ class HTTPClient(object):
         request = ""
         if args != None:
             encodedArgs = urllib.parse.urlencode(args)
-            request = "POST  {} HTTP/1.1\r\nHost: {}\r\nContent-Type: {}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}".format(path, hostname, "www/x-form-urlencoded", len(encodedArgs), encodedArgs)
+            request = "POST  {} HTTP/1.1\r\nHost: {}\r\nContent-Type: {}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}".format(path, hostname, "application/x-www-form-urlencoded", len(encodedArgs), encodedArgs)
         else:
-            request = "POST  {} HTTP/1.1\r\nHost: {}\r\nContent-Type: {}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n".format(path, hostname, "www/x-form-urlencoded", 0)
+            request = "POST  {} HTTP/1.1\r\nHost: {}\r\nContent-Type: {}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n".format(path, hostname, "application/x-www-form-urlencoded", 0)
         
         self.sendall(request)
+        
         data = self.recvall(self.socket)
         code = self.get_code(data)
         body = self.get_body(data)
